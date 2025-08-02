@@ -141,7 +141,7 @@ def sort_emails(logger=None):
             if is_classified:
                 client.move(msgid, ACTIVATION_REQ_FOLDER)
                 if logger:
-                    logger(f"⏎ Перемещаем {msg['Subject']!r} в {ACTIVATION_REQ_FOLDER}", idx, len(messages))
+                    logger(f"↩ Перемещаем {msg['Subject']!r} в {ACTIVATION_REQ_FOLDER}", idx, len(messages))
 
             else:
                 client.move(msgid, OTHER_TOPIC_FOLDER)

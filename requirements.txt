@@ -1,0 +1,4 @@
+openai==1.98.0
+imapclient==3.0.1
+python-dotenv==1.1.1
+streamlit==1.47.1

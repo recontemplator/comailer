@@ -247,7 +247,7 @@ def update_folder_metrics():
 hide_menu_style = """
         <style>
         .stAppDeployButton {display:none;}
-        .stMainBlockContainer {padding-top:1rem;}
+        .stMainBlockContainer {padding-top:2rem;}
         </style>
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)

@@ -218,7 +218,7 @@ def send_replies(logger=None):
         client.expunge()
 
         client.logout()
-        if logger: logger("Сортировка писем завершена.")
+        if logger: logger("Отправка писем завершена.")
 
 
 

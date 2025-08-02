@@ -36,6 +36,7 @@ SRC_FOLDER_STATUS = os.getenv('SRC_FOLDER_STATUS', 'UNSEEN')
 ACTIVATION_REQ_FOLDER = os.getenv('ACTIVATION_REQ_FOLDER', 'selected.activation_request')
 OTHER_TOPIC_FOLDER = os.getenv('OTHER_TOPIC_FOLDER', 'selected.other_topic')
 ACTIVATION_REQ_ANSWERED_FOLDER = os.getenv('ACTIVATION_REQ_ANSWERED_FOLDER', 'selected.activation_request_answered')
+SENT_FOLDER = os.getenv('SENT_FOLDER', 'Sent')
 
 # openai.api_key = os.getenv('OPENAI_API_KEY')
 # openai.api_base = os.getenv('OPENAI_API_BASE')
@@ -203,7 +204,6 @@ def send_replies(logger=None):
                 # Флаги и время по вашему вкусу:
                 FLAGS = [b'\\Seen']
                 # Название папки «Sent» может отличаться:
-                SENT_FOLDER = 'Sent Messages'  
                 client.append(SENT_FOLDER, raw, FLAGS, datetime.now())
                 
                 

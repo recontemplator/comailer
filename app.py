@@ -82,7 +82,7 @@ def ping_ai():
         response = ai_client.chat.completions.create(
             model=MODEL,
             messages=[{"role": "user", "content": "Ты тут?"}],
-            max_tokens=10
+            max_tokens=50
         )
         ai_response = response.choices[0].message.content.strip()
         return True, f"'{MODEL}', ты тут?: {ai_response}"

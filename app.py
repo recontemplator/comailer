@@ -9,7 +9,7 @@ import os
 import ssl
 import smtplib
 from email.message import EmailMessage
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
 
@@ -49,6 +49,14 @@ TEMPLATE = os.getenv('TEMPLATE', '')
 
 # Критерий: свободный текст-промпт
 CLASSIFICATION_PROMPT = os.getenv('CLASSIFICATION_PROMPT')
+
+# читаем версию сборки из файла VERSION
+VERSION_FILE = os.path.join(os.path.dirname(__file__), 'VERSION')
+if os.path.exists(VERSION_FILE):
+    with open(VERSION_FILE, 'r') as f:
+        BUILD_VERSION = f.read().strip()
+else:
+    BUILD_VERSION = "unknown"
 
 # Создаём глобальный клиент (чтобы не инициализировать каждый вызов)
 ai_client = OpenAI(
@@ -138,7 +146,7 @@ def sort_emails(logger=None):
             raw = data[b'RFC822']
             msg = email.message_from_bytes(raw, policy=default)
             body = extract_plain_text(msg)
-            is_classified = classify(body)
+            is_classified = classify(f'Subject: {msg["Subject"]}\n\n{body}')
             if is_classified:
                 client.move(msgid, ACTIVATION_REQ_FOLDER)
                 if logger:
@@ -241,6 +249,7 @@ def update_folder_metrics():
             counts["other_topic_count"],
             width="content"
         )
+        last_update_ph.caption(f"Последнее обновление: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")        
     except Exception as e:
         st.sidebar.error(f"Ошибка при получении доступа к почте: {e}")
 
@@ -265,21 +274,45 @@ st.sidebar.header("Текущее состояние:")
 to_sort_ph       = st.sidebar.empty()
 activation_ph    = st.sidebar.empty()
 other_topic_ph   = st.sidebar.empty()
+last_update_ph   = st.sidebar.empty()
 
 update_folder_metrics()
     
 st.sidebar.markdown("---")
 
-if "ai_status" not in st.session_state:
+# нужно кэшировать статус AI но не на всегда а на 5минут и добавить информацию о том когда последний раз обновлялся
+if "ai_status" not in st.session_state or st.session_state["ai_status"][2] < datetime.now() - timedelta(minutes=5):
+    last_update = datetime.now()
     ai_ok, ai_msg = ping_ai()
-    st.session_state["ai_status"] = (ai_ok, ai_msg)
+    st.session_state["ai_status"] = (ai_ok, ai_msg, last_update)
 else:
-    ai_ok, ai_msg = st.session_state["ai_status"]    
+    ai_ok, ai_msg, last_update = st.session_state["ai_status"]
 
 if ai_ok:
     st.sidebar.success(ai_msg)
 else:
     st.sidebar.error(ai_msg)
+
+st.sidebar.caption(f"Последнее обновление: {last_update.strftime('%Y-%m-%d %H:%M:%S')}")
+
+
+# Добавляем кастомный стиль для прижатия к низу sidebar
+sidebar_build_style = """
+    <style>
+    .sidebar-build-version {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 20rem;
+        padding: 0.5em 1em;
+        background: transparent;
+        z-index: 100;
+        text-align: left;
+    }
+    </style>
+    """
+st.markdown(sidebar_build_style, unsafe_allow_html=True)
+st.sidebar.markdown(f"<div class='sidebar-build-version'><span style='font-size:0.9em;color:gray'>Сборка от: {BUILD_VERSION}</span></div>", unsafe_allow_html=True)
 
 
 
